@@ -1,0 +1,53 @@
+>> clear all;
+>> img1 = imread('test1.tif');
+>> img2 = imread('test2.png');
+>> img3 = imread('test3.jpg');
+>> img4 = imread('test4.bmp');
+>> img5 = imread('test5.png');
+>> img6 = imread('test6.jpg');
+>> img1 = img1(:,:,1);
+>> c = cell(1,6);
+>> c{1,1} = img1 ;c{1,2} = img2; c{1,3} = img3; c{1,4} = img4; c{1,5} = img5; c{1,6} = img6;
+>> for i = 1:6
+    sobel{i} = edge(c{i},'sobel');
+    canny{i} = edge(c{i},'canny');
+   end
+>> for i = 1:6
+      h = figure(i);
+      subplot(1,3,1)
+      imshow(c{i}); title(['ԭͼ',num2str(i)])
+      subplot(1,3,2)
+      imshow(sobel{i}); title(['sobel',num2str(i)]);
+      subplot(1,3,3)
+      imshow(canny{i}); title(['canny',num2str(i)]);
+      filename = sprintf('EdgeDetect%d.bmp',i);
+      saveas(h,filename);
+   end
+>> 
+>> for i = 1:6
+      [H,I,R] = hough(sobel{i},'RhoResolution',1,'Theta',-90:0.5:89.5);
+      F = houghpeaks(H,5,'threshold',0.5*max(H(:)));
+      lines = houghlines(sobel{i}, I, R, F, 'FillGap', 5, 'MinLength', 7);
+      subplot(2,3,i)
+      imshow(sobel{i}), hold on
+      maxlen = 0;
+      for k = 1:length(lines)
+         xy = [lines(k).point1; lines(k).point2];
+         plot(xy(:,1), xy(:,2), 'LineWidth', 2, 'Color', 'red')
+         len = norm(lines(k).point1 - lines(k).point2);
+      end
+   end
+>> for i = 1:6
+      [H,I,R] = hough(canny{i},'RhoResolution',1,'Theta',-90:0.5:89.5);
+      F = houghpeaks(H,5,'threshold',0.5*max(H(:)));
+      lines = houghlines(canny{i}, I, R, F, 'FillGap', 5, 'MinLength', 7);
+      subplot(2,3,i)
+      imshow(canny{i}), hold on
+      maxlen = 0;
+      for k = 1:length(lines)
+         xy = [lines(k).point1; lines(k).point2];
+         plot(xy(:,1), xy(:,2), 'LineWidth', 2, 'Color', 'red')
+         len = norm(lines(k).point1 - lines(k).point2);
+      end
+   end
+>> 
